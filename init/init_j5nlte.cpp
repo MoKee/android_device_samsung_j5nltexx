@@ -1,6 +1,5 @@
 /*
    Copyright (c) 2013, The Linux Foundation. All rights reserved.
-
    Redistribution and use in source and binary forms, with or without
    modification, are permitted provided that the following conditions are
    met:
@@ -13,7 +12,6 @@
     * Neither the name of The Linux Foundation nor the names of its
       contributors may be used to endorse or promote products derived
       from this software without specific prior written permission.
-
    THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESS OR IMPLIED
    WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
    MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT
@@ -28,37 +26,36 @@
  */
 
 #include <stdlib.h>
+
 #include "vendor_init.h"
 #include "property_service.h"
 #include "log.h"
 #include "util.h"
 
-#define ISMATCH(a,b)    (!strncmp(a,b,PROP_VALUE_MAX))
+void init_dsds() {
+    property_set("ro.multisim.set_audio_params", "true");
+    property_set("ro.multisim.simslotcount", "1");
+    property_set("persist.radio.multisim.config", "none");
+}
 
 void vendor_load_properties()
 {
-   char platform[PROP_VALUE_MAX];
-   char bootloader[PROP_VALUE_MAX];
-   char device[PROP_VALUE_MAX];
-   char devicename[PROP_VALUE_MAX];
-   int rc;
+    std::string platform = property_get("ro.board.platform");
+    if (platform != ANDROID_TARGET)
+        return;
 
-   rc = property_get("ro.board.platform", platform);
-   if (!rc || !ISMATCH(platform, ANDROID_TARGET))
-      return;
+    std::string bootloader = property_get("ro.bootloader");
 
-   property_get("ro.bootloader", bootloader);
+    if (bootloader.find("J500FN") == 0) {
+        /* SM-J500FN */
+        property_set("ro.build.fingerprint", "samsung/j5ltexx/j5lte:7.1.1/MMB29M/J500FXXU1BPF4:user/release-keys");
+        property_set("ro.build.description", "j5ltexx-user 7.1.1 MMB29M J500FXXU1BPF4 release-keys");
+        property_set("ro.product.model", "SM-J500FN");
+        property_set("ro.product.device", "j5nltexx");
 
-   if (strstr(bootloader, "J500FN")) {
-      /* SM-J500FN */
-      property_set("ro.build.fingerprint", "samsung/j5nltexx/j5nlte:6.0.1/MMB29M/J500FNXXU1BPK3:user/release-keys");
-      property_set("ro.build.description", "j5nltexx-user 6.0.1 MMB29M J500FNXXU1BPK3 release-keys");
-      property_set("ro.product.model", "SM-J500FN");
-      property_set("ro.product.device", "j5nlte");
+        init_single();
+    }
 
-   }
-
-   property_get("ro.product.device", device);
-   strlcpy(devicename, device, sizeof(devicename));
-   INFO("Found bootloader id %s setting build properties for %s device\n", bootloader, devicename);
+    std::string device = property_get("ro.product.device");
+    INFO("Found bootloader id %s setting build properties for %s device\n", bootloader.c_str(), device.c_str());
 }
