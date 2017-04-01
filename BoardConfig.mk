@@ -26,6 +26,14 @@
 # Inherit from the proprietary version
 -include vendor/samsung/j5nltexx/BoardConfigVendor.mk
 
+# Audio
+AUDIO_FEATURE_SAMSUNG_DUAL_SIM := true
+
+# Radio
+SIM_COUNT := 2
+TARGET_GLOBAL_CFLAGS += -DANDROID_MULTI_SIM
+TARGET_GLOBAL_CPPFLAGS += -DANDROID_MULTI_SIM
+
 # Partition sizes
 BOARD_BOOTIMAGE_PARTITION_SIZE := 13631488
 BOARD_RECOVERYIMAGE_PARTITION_SIZE := 15728640
